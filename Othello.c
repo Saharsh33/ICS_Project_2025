@@ -3,6 +3,21 @@
 
 int oth[8][8];                          // 1= Black; 2=White;
 
+int we[8][8]={{100,-25,10,5,5,10,-25,100}
+             ,{-25,-40,1,1,1,1,-40,-25}
+             ,{10,1,5,2,2,5,1,10}
+             ,{5,1,2,1,1,2,1,5}
+             ,{5,1,2,1,1,2,1,5}
+             ,{10,1,5,2,2,5,1,10}
+             ,{-25,-40,1,1,1,1,-40,-25}
+             ,{100,-25,10,5,5,10,-25,100}
+            };
+
+typedef struct move {
+    int i;
+    int j;
+} bestmove,move,validmove;
+
 void print(int oth[8][8]){        
      // print board
     for(int i=0;i<8;i++){
@@ -32,8 +47,8 @@ void start(int oth[8][8]){
 
 }
 
-int validmove(int oth[8][8], int i, int j, int colour){
-    
+int valid_move(int oth[8][8],int i,int j, int colour){
+
     if(oth[i][j]!=0) return 0;
     int count=0;
     int oppcol;
@@ -127,9 +142,138 @@ int validmove(int oth[8][8], int i, int j, int colour){
     
 
 }
+// 1==computer
+int evalution (int duoth[8][8]){
+    
+    int value=0;
+
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(duoth[i][j]==1){
+                value=value+(we[i][j]);
+            }
+            if(duoth[i][j]==2){
+                value=value-(we[i][j]);
+            }
+        }
+    }
+
+    return value;
+}
+
+
+//baki che
+void best_move(bestmove *b1, int oth[8][8]){
+
+int duoth[8][8];
+
+for(int i=0;i<8;i++){
+    for(int j=0;j<8;j++){
+        duoth[i][j]=oth[i][j];
+    }
+}
 
 
 
+
+
+
+}
+
+// baki che
+int maxvalue(int depth,int alpha,int beta,int duoth[8][8]){
+        if(depth==0){
+            return evalution(duoth[8][8]);
+        }
+    int max_value=0;
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                if(valid_move(duoth,i,j,1)){
+                    duoth[i][j]=1;
+                    int eval=0;
+                    eval=minvalue(depth-1,alpha,beta,duoth[8][8]);
+                    duoth[i][j]=0;
+                    if(eval>max_value){
+                        max_value=eval;
+                    }
+                }
+            }
+        }
+
+    return max_value;
+}
+
+//baki che
+int minvalue(int depth,int alpha,int beta,int duoth[8][8]){
+    if(depth==0){
+        return evalution(duoth[8][8]);
+    }
+int min_value=0;
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(valid_move(duoth,i,j,1)){
+                duoth[i][j]=1;
+                int eval=0;
+                eval=maxvalue(depth-1,alpha,beta,duoth[8][8]);
+                duoth[i][j]=0;
+                if(eval<min_value){
+                    min_value=eval;
+                }
+            }
+        }
+    }
+
+return min_value;
+}
+
+//main baki che
+int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
+    if(depth==0){
+        return evalution(duoth[8][8]);
+    }
+    if(maxmin){
+        int max_value=0;
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                if(valid_move(duoth,i,j,1)){
+                    duoth[i][j]=1;
+                    int eval=0;
+                    eval=minimax(depth-1,alpha,beta,duoth[8][8],0);
+                    duoth[i][j]=0;
+                    if(eval>max_value){
+                        max_value=eval;
+                    }
+                    if(eval>alpha) alpha=eval;
+                    if(beta<=alpha) break;
+                }
+            }
+        }
+
+    return max_value;
+
+    }else{
+        int min_value=0;
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(valid_move(duoth,i,j,1)){
+                duoth[i][j]=1;
+                int eval=0;
+                eval=minimax(depth-1,alpha,beta,duoth[8][8],1);
+                duoth[i][j]=0;
+                if(eval<min_value){
+                    min_value=eval;
+                }
+                if(eval<beta) beta=eval;
+                    if(beta<=alpha) break;
+            }
+        }
+    }
+
+        return min_value;
+    }
+}
+
+// baki che
 int main (){
     start(oth);
     
