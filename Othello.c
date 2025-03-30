@@ -178,9 +178,22 @@ void swap_move(int oth1[8][8],int i,int j, int colour,int *ptr){
 
 }
 // 1==computer
-int evalution (int duoth[8][8]){
+int evalution (int duoth[8][8],int ai){
     
     int value=0;
+    if(ai){
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                if(duoth[i][j]==1){
+                    value=value+1;
+                }
+                if(duoth[i][j]==2){
+                    value=value-1;
+                }
+            }
+        }
+        return value;
+    }
 
     for(int i=0;i<8;i++){
         for(int j=0;j<8;j++){
@@ -360,9 +373,9 @@ int valid_move(int oth1[8][8],int i,int j, int colour){
     return 0;
 }
 
-int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
+int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai){
     if(depth==0){
-        return evalution(duoth);
+        return evalution(duoth,ai);
     }
     if(maxmin){
         int max_value=INT_MIN;
@@ -378,7 +391,7 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
 
                     swap_move(duoth1,i,j,1,ptr);
                     int eval=0;
-                    eval=minimax(depth-1,alpha,beta,duoth1,0);
+                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai);
                     if(eval>max_value){
                         max_value=eval;
                     }
@@ -390,7 +403,7 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
             }
         }
             if(count==0){
-                return minimax(depth - 1, alpha, beta, duoth, 0);
+                return minimax(depth - 1, alpha, beta, duoth, 0,ai);
             }
             return max_value;
 
@@ -407,7 +420,7 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
                     int* ptr=&duoth1[i][j];
                     swap_move(duoth1,i,j,2,ptr);
                 int eval=0;
-                eval=minimax(depth-1,alpha,beta,duoth1,1);
+                eval=minimax(depth-1,alpha,beta,duoth1,1,ai);
                 if(eval<min_value){
                     min_value=eval;
                 }
@@ -417,13 +430,13 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin){
         }
     }
     if(count==0){
-        return minimax(depth - 1, alpha, beta, duoth, 1);
+        return minimax(depth - 1, alpha, beta, duoth, 1,ai);
     }
         return min_value;
     }
 }
 
-int best_move(bestmove *b1,int depth){
+int best_move(bestmove *b1,int depth,int ai){
 
     int count =0;
     int max_value=INT_MIN;
@@ -438,7 +451,7 @@ int best_move(bestmove *b1,int depth){
                     swap_move(duoth1,i,j,1,ptr);
                     count++;
                     int eval=0;
-                    eval=minimax(depth-1,alpha,beta,duoth1,0);
+                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai);
                     if(eval>max_value){
                         max_value=eval;
                         b1->i=i;
@@ -465,6 +478,9 @@ int main (){
     printf("Want to play with Human or Computer\n If Human type H else type C\n Enter here:");
     type=getchar();
     if(type=='C'){
+        int ai;
+        printf("for Bot 1 enter 1 and for bot 2 enter 0 (bot 1 slower but accurate and bot 2 faster)\n");
+        scanf("%d",&ai);
         int depth;
         printf("Enter the level of Hardness:");
         scanf("%d",&depth);
@@ -480,8 +496,8 @@ int main (){
                 print();
             bestmove b1;
             int k1;
-            k1=best_move(&b1,depth);
-            printf("%d,%d\n",b1.i,b1.j);
+            k1=best_move(&b1,depth,ai);
+            printf("%d,%c\n",(b1.i)-1,(b1.j)+'A');
             swap_move(oth,(b1.i),(b1.j),1,&oth[b1.i][b1.j]);
             print();
             k++;
