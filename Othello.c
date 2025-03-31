@@ -4,20 +4,34 @@
 
 int oth[8][8];                          // 1= Black; 2=White;
 
-int we1[8][8]={{100,1,10,10,10,10,1,100}
-             ,{1,0,2,2,2,2,0,1}
-             ,{10,2,10,5,5,10,2,10}
-             ,{10,2,5,25,25,5,2,10}
-             ,{10,2,5,25,25,5,2,10}
-             ,{10,2,10,5,5,10,2,10}
-             ,{1,0,2,2,2,2,0,1}
-             ,{100,1,10,10,10,10,1,100}
+// int we1[8][8]={{100,1,10,10,10,10,1,100}
+//              ,{1,0,2,2,2,2,0,1}
+//              ,{10,2,10,5,5,10,2,10}
+//              ,{10,2,5,25,25,5,2,10}
+//              ,{10,2,5,25,25,5,2,10}
+//              ,{10,2,10,5,5,10,2,10}
+//              ,{1,0,2,2,2,2,0,1}
+//              ,{100,1,10,10,10,10,1,100}
+//             };
+
+            int we1[8][8]={{100,-20,10,5,5,10,-20,100}
+             ,{-20,-40,-5,-5,-5,-5,-40,-20}
+             ,{10,-5,5,1,1,5,-5,10}
+             ,{5,-5,1,1,1,1,-5,5}
+             ,{5,-5,1,1,1,1,-5,5}
+             ,{10,-5,5,1,1,5,-5,10}
+             ,{-20,-40,-5,-5,-5,-5,-40,-20}
+             ,{100,-20,10,5,5,10,-20,100}
             };
 
 typedef struct move {
     int i;
     int j;
 } bestmove,move,validmove;
+typedef struct{
+    int black;
+    int white;
+}score;
 
 void print(){        
      // print board
@@ -46,6 +60,91 @@ void copy(int*c,int*p){
         c++;
     }
 }
+
+
+int valid_move(int oth1[8][8],int i,int j, int colour){
+
+    if(oth1[i][j]!=0) return 0;
+    int oppcol;
+    if(colour==1) oppcol=2;
+    if(colour==2) oppcol=1;
+
+    if(oth1[i+1][j]==oppcol &&i+1<8 ){                   //horizontal aage   
+        for(int k=2+i;k<8;k++){
+            if(oth1[k][j]==0)break;                              
+            if(oth1[k][j]==colour) return 1;
+             
+        }
+    }
+    if(oth1[i-1][j]==oppcol && i-1>=0){ 
+        for(int k=-2+i;k>=0;k--){
+        if(oth1[k][j]==0)break;         //horizontal  piche
+        if(oth1[k][j]==colour)return 1;
+        } 
+    }
+    if(oth1[i][j+1]==oppcol && j+1<8 ){ 
+        for(int k=2+j;k<8;k++){
+            if(oth1[i][k]==0)break;         // vertical uper
+            if(oth1[i][k]==colour)return 1;
+        }
+    }
+    if(oth1[i][j-1]==oppcol && j-1>=0 ){ 
+        for(int k=-2+j;k>=0;k--){
+            if(oth1[i][k]==0)break;          // vertical niche
+            if(oth1[i][k]==colour)return 1;
+        }
+    }
+    if(oth1[i+1][j+1]==oppcol &&i+1<8 &&j+1<8){ 
+        for(int k=2;i+k<8 && j+k<8;k++){
+            if(oth1[i+k][j+k]==0)break;         // cross age uper
+            if(oth1[i+k][j+k]==colour)return 1;
+        }
+    }
+    if(oth1[i-1][j-1]==oppcol && i-1>=0 && j-1>=0){     //cross piche niche
+        for(int k=2;i-k>=0 && j-k>=0;k++){
+            if(oth1[i-k][j-k]==0)break;
+            if(oth1[i-k][j-k]==colour)return 1;
+        }
+    }
+    if(oth1[i+1][j-1]==oppcol &&i+1<8 && j-1>=0){     // cross age niche
+        for(int k=2;i+k<8 && j-k>=0;k++){
+            if(oth1[i+k][j-k]==0)break;
+            if(oth1[i+k][j-k]==colour)return 1;
+        }
+    }
+    if(oth1[i-1][j+1]==oppcol &&j+1<8 && i-1>=0){     // cross piche uper
+        for(int k=1;i-k>=0 && j+k<8;k++){
+            if(oth1[i-k][j+k]==0)break;
+            if(oth1[i-k][j+k]==colour)return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+int gameover (){
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(valid_move(oth,i,j,1)==1 && valid_move(oth,i,j,2)==1){
+               return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int gameover1 (int oth1[8][8],int com){
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(valid_move(oth1,i,j,1)==com){
+               return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 
 void start(){
     for(int i=0;i<8;i++){
@@ -178,16 +277,27 @@ void swap_move(int oth1[8][8],int i,int j, int colour,int *ptr){
 
 }
 // 1==computer
-int evalution (int duoth[8][8],int ai){
+int evalution (int duoth[8][8],int ai,int com){
     
+    
+
+    int opp;
+    if(com==1)opp=2;
+    if(com==2)opp=1;
     int value=0;
+    if(gameover1(duoth,com)==0){
+        return -100000;
+    }
+    if(gameover1(duoth,opp)==0){
+        return +100000;
+    }
     if(ai){
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
-                if(duoth[i][j]==1){
+                if(duoth[i][j]==com){
                     value=value+1;
                 }
-                if(duoth[i][j]==2){
+                if(duoth[i][j]==opp){
                     value=value-1;
                 }
             }
@@ -313,85 +423,28 @@ int evalution (int duoth[8][8],int ai){
     return value;
 }
 
-int valid_move(int oth1[8][8],int i,int j, int colour){
-
-    if(oth1[i][j]!=0) return 0;
-    int oppcol;
-    if(colour==1) oppcol=2;
-    if(colour==2) oppcol=1;
-
-    if(oth1[i+1][j]==oppcol &&i+1<8 ){                   //horizontal aage   
-        for(int k=2+i;k<8;k++){
-            if(oth1[k][j]==0)break;                              
-            if(oth1[k][j]==colour) return 1;
-             
-        }
-    }
-    if(oth1[i-1][j]==oppcol && i-1>=0){ 
-        for(int k=-2+i;k>=0;k--){
-        if(oth1[k][j]==0)break;         //horizontal  piche
-        if(oth1[k][j]==colour)return 1;
-        } 
-    }
-    if(oth1[i][j+1]==oppcol && j+1<8 ){ 
-        for(int k=2+j;k<8;k++){
-            if(oth1[i][k]==0)break;         // vertical uper
-            if(oth1[i][k]==colour)return 1;
-        }
-    }
-    if(oth1[i][j-1]==oppcol && j-1>=0 ){ 
-        for(int k=-2+j;k>=0;k--){
-            if(oth1[i][k]==0)break;          // vertical niche
-            if(oth1[i][k]==colour)return 1;
-        }
-    }
-    if(oth1[i+1][j+1]==oppcol &&i+1<8 &&j+1<8){ 
-        for(int k=2;i+k<8 && j+k<8;k++){
-            if(oth1[i+k][j+k]==0)break;         // cross age uper
-            if(oth1[i+k][j+k]==colour)return 1;
-        }
-    }
-    if(oth1[i-1][j-1]==oppcol && i-1>=0 && j-1>=0){     //cross piche niche
-        for(int k=2;i-k>=0 && j-k>=0;k++){
-            if(oth1[i-k][j-k]==0)break;
-            if(oth1[i-k][j-k]==colour)return 1;
-        }
-    }
-    if(oth1[i+1][j-1]==oppcol &&i+1<8 && j-1>=0){     // cross age niche
-        for(int k=2;i+k<8 && j-k>=0;k++){
-            if(oth1[i+k][j-k]==0)break;
-            if(oth1[i+k][j-k]==colour)return 1;
-        }
-    }
-    if(oth1[i-1][j+1]==oppcol &&j+1<8 && i-1>=0){     // cross piche uper
-        for(int k=1;i-k>=0 && j+k<8;k++){
-            if(oth1[i-k][j+k]==0)break;
-            if(oth1[i-k][j+k]==colour)return 1;
-        }
-    }
-
-    return 0;
-}
-
-int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai){
+int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai,int com){
     if(depth==0){
-        return evalution(duoth,ai);
+        return evalution(duoth,ai,com);
     }
+    int opp;
+    if(com==1)opp=2;
+    if(com==2)opp=1;
     if(maxmin){
         int max_value=INT_MIN;
         int count=0;
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
 
-                if(valid_move(duoth,i,j,1)){
+                if(valid_move(duoth,i,j,com)){
                     count++;
                     int duoth1[8][8];
                     copy(&duoth[0][0],&duoth1[0][0]);
                     int* ptr=&duoth1[i][j];
 
-                    swap_move(duoth1,i,j,1,ptr);
+                    swap_move(duoth1,i,j,com,ptr);
                     int eval=0;
-                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai);
+                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai,com);
                     if(eval>max_value){
                         max_value=eval;
                     }
@@ -403,7 +456,7 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai){
             }
         }
             if(count==0){
-                return minimax(depth - 1, alpha, beta, duoth, 0,ai);
+                return minimax(depth - 1, alpha, beta, duoth, 0,ai,com);
             }
             return max_value;
 
@@ -413,14 +466,14 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai){
     for(int i=0;i<8;i++){
         for(int j=0;j<8;j++){
 
-            if(valid_move(duoth,i,j,2)){
+            if(valid_move(duoth,i,j,opp)){
                 count++;
                 int duoth1[8][8];
                     copy(&duoth[0][0],&duoth1[0][0]);
                     int* ptr=&duoth1[i][j];
-                    swap_move(duoth1,i,j,2,ptr);
+                    swap_move(duoth1,i,j,opp,ptr);
                 int eval=0;
-                eval=minimax(depth-1,alpha,beta,duoth1,1,ai);
+                eval=minimax(depth-1,alpha,beta,duoth1,1,ai,com);
                 if(eval<min_value){
                     min_value=eval;
                 }
@@ -430,13 +483,13 @@ int minimax(int depth,int alpha,int beta,int duoth[8][8],int maxmin,int ai){
         }
     }
     if(count==0){
-        return minimax(depth - 1, alpha, beta, duoth, 1,ai);
+        return minimax(depth - 1, alpha, beta, duoth, 1,ai,com);
     }
         return min_value;
     }
 }
 
-int best_move(bestmove *b1,int depth,int ai){
+int best_move(bestmove *b1,int depth,int ai,int com){
 
     int count =0;
     int max_value=INT_MIN;
@@ -444,14 +497,14 @@ int best_move(bestmove *b1,int depth,int ai){
     int beta=INT_MAX;
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
-                if(valid_move(oth,i,j,1)){
+                if(valid_move(oth,i,j,com)){
                     int duoth1[8][8];
                     copy(&oth[0][0],&duoth1[0][0]);
                     int* ptr=&duoth1[i][j];
                     swap_move(duoth1,i,j,1,ptr);
                     count++;
                     int eval=0;
-                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai);
+                    eval=minimax(depth-1,alpha,beta,duoth1,0,ai,com);
                     if(eval>max_value){
                         max_value=eval;
                         b1->i=i;
@@ -471,6 +524,20 @@ int best_move(bestmove *b1,int depth,int ai){
 }
 
 
+void Score(score *c1){
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            if(oth[i][j]==1){
+                (c1->black)++;
+            }
+            if(oth[i][j]==2){
+                (c1->white)++;
+            }
+        }
+    }
+}
+
+
 // baki che
 int main (){
     start();
@@ -483,30 +550,40 @@ int main (){
         scanf("%d",&ai);
         int depth;
         printf("Enter the level of Hardness:");
-        scanf("%d",&depth);
-        int k=0;                        //baki che;
-        while (k<64){
-            int i,j;
-            char c;
-            scanf("%d,%c",&i,&c);// swaping baki che
-            j=c-'A';
-            i--;
-            if(valid_move(oth,i,j,2)){
-                swap_move(oth,i,j,2,&oth[i][j]);
+        scanf("%d",&depth);                      //baki che;
+        while (gameover){
+            // int i,j;
+            // char c;
+            // scanf("%d,%c",&i,&c);// swaping baki che
+            // j=c-'A';
+            // i--;
+            // if(valid_move(oth,i,j,2)){
+            //     swap_move(oth,i,j,2,&oth[i][j]);
+            //     print();
+
+            move c1,c2;
+            if(best_move(&c1,depth,1,1)){
+                printf("%d,%c\n",(c1.i)+1,(c1.j)+'A');
+                swap_move(oth,(c1.i),(c1.j),1,&oth[c1.i][c1.j]);
                 print();
-            bestmove b1;
-            int k1;
-            k1=best_move(&b1,depth,ai);
-            printf("%d,%c\n",(b1.i)-1,(b1.j)+'A');
-            swap_move(oth,(b1.i),(b1.j),1,&oth[b1.i][b1.j]);
-            print();
-            k++;
-
             }
-        
+            if(best_move(&c2,depth,0,2)){
+                printf("%d,%c\n",(c2.i)+1,(c2.j)+'A');
+                swap_move(oth,(c2.i),(c2.j),2,&oth[c2.i][c2.j]);
+                print();
+            }
+            
+            
+            }
+            // score C;
+            // C.white=0;
+            // C.black=0;
+            // Score(&C);
+            // printf("white:%d Black:%d",C.white,C.black);
 
+           
         }
-    }else{
+    else{
 
     }
 
